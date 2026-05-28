@@ -5,8 +5,12 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-import { WaitForDnsTxt } from './WaitForDnsTxt.action';
 import { QueryDnsTxt } from './QueryDnsTxt.action';
+import { WaitForDnsTxt } from './WaitForDnsTxt.action';
+import { CreateDnsTxtRecord } from './CreateDnsTxtRecord.action';
+import { DeleteDnsTxtRecord } from './DeleteDnsTxtRecord.action';
+
+const MANAGEMENT_OPERATIONS = [CreateDnsTxtRecord.Operation, DeleteDnsTxtRecord.Operation];
 
 export class DNS implements INodeType {
 	description: INodeTypeDescription = {
@@ -15,22 +19,53 @@ export class DNS implements INodeType {
 		icon: { light: 'file:dns.svg', dark: 'file:dns.dark.svg' },
 		group: ['input'],
 		version: 1,
-		description: 'Provide common operations related to DNS',
-		documentationUrl: 'https://github.com/colinshawn/n8n-nodes-acme.git',
-		defaults: {
-			name: 'DNS',
-		},
+		description: 'Query DNS records or manage them via a DNS provider API',
+		documentationUrl: 'https://github.com/kboykov/n8n-nodes-acme',
+		defaults: { name: 'DNS' },
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
+		credentials: [
+			{
+				name: 'cloudflareDnsApi',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: MANAGEMENT_OPERATIONS,
+						dnsProvider: ['cloudflare'],
+					},
+				},
+			},
+		],
 		properties: [
 			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
-				options: [QueryDnsTxt.Options, WaitForDnsTxt.Options],
+				options: [
+					QueryDnsTxt.Options,
+					WaitForDnsTxt.Options,
+					CreateDnsTxtRecord.Options,
+					DeleteDnsTxtRecord.Options,
+				],
 				default: QueryDnsTxt.Operation,
+			},
+			{
+				displayName: 'DNS Provider',
+				name: 'dnsProvider',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'Cloudflare',
+						value: 'cloudflare',
+						description: 'Cloudflare DNS — requires an API token with Zone:DNS:Edit permission',
+					},
+				],
+				default: 'cloudflare',
+				description: 'DNS provider to use for record management',
+				displayOptions: { show: { operation: MANAGEMENT_OPERATIONS } },
 			},
 			{
 				displayName: 'Host Name',
@@ -38,63 +73,34 @@ export class DNS implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
-				placeholder: 'e.g _acme-challenge.example.com',
-				description: 'The host name to be resolved',
+				placeholder: 'e.g. _acme-challenge.example.com',
+				description: 'Host name to resolve',
 				displayOptions: {
-					show: {
-						operation: [QueryDnsTxt.Operation, WaitForDnsTxt.Operation],
-					},
-				},
-			},
-			{
-				displayName: 'DNS Server',
-				name: 'dnsServer',
-				type: 'string',
-				required: true,
-				default: '8.8.8.8',
-				placeholder: 'e.g 8.8.8.8',
-				description: 'The DNS query server used',
-				displayOptions: {
-					show: {
-						operation: [QueryDnsTxt.Operation],
-					},
-				},
-			},
-			{
-				displayName: 'DNS Servers',
-				name: 'dnsServers',
-				type: 'string',
-				required: true,
-				default: '8.8.8.8, 1.1.1.1',
-				placeholder: 'e.g 8.8.8.8, 1.1.1.1',
-				description: 'The DNS query server(s) used',
-				displayOptions: {
-					show: {
-						operation: [WaitForDnsTxt.Operation],
-					},
+					show: { operation: [QueryDnsTxt.Operation, WaitForDnsTxt.Operation] },
 				},
 			},
 			...QueryDnsTxt.Properties,
 			...WaitForDnsTxt.Properties,
+			...CreateDnsTxtRecord.Properties,
+			...DeleteDnsTxtRecord.Properties,
 		],
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
-
-		let item: INodeExecutionData;
 		const operation = this.getNodeParameter('operation', 0) as string;
-		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-			try {
-				item = items[itemIndex];
 
+		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+			const item = items[itemIndex];
+			try {
 				if (QueryDnsTxt.canExecute(operation)) {
-					const action = new QueryDnsTxt(this, item, itemIndex);
-					await action.execute();
-				}
-				if (WaitForDnsTxt.canExecute(operation)) {
-					const action = new WaitForDnsTxt(this, item, itemIndex);
-					await action.execute();
+					await new QueryDnsTxt(this, item, itemIndex).execute();
+				} else if (WaitForDnsTxt.canExecute(operation)) {
+					await new WaitForDnsTxt(this, item, itemIndex).execute();
+				} else if (CreateDnsTxtRecord.canExecute(operation)) {
+					await new CreateDnsTxtRecord(this, item, itemIndex).execute();
+				} else if (DeleteDnsTxtRecord.canExecute(operation)) {
+					await new DeleteDnsTxtRecord(this, item, itemIndex).execute();
 				}
 			} catch (error) {
 				if (this.continueOnFail()) {
@@ -104,9 +110,7 @@ export class DNS implements INodeType {
 						error.context.itemIndex = itemIndex;
 						throw error;
 					}
-					throw new NodeOperationError(this.getNode(), error, {
-						itemIndex,
-					});
+					throw new NodeOperationError(this.getNode(), error, { itemIndex });
 				}
 			}
 		}

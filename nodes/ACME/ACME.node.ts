@@ -27,7 +27,7 @@ export class ACME implements INodeType {
 		group: ['input'],
 		version: 1,
 		description: 'Provide common operations of ACME(Automatic Certificate Management Environment).',
-		documentationUrl: 'https://github.com/colinshawn/n8n-nodes-acme.git',
+		documentationUrl: 'https://github.com/kboykov/n8n-nodes-acme',
 		defaults: {
 			name: 'ACME',
 		},

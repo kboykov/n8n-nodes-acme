@@ -1,21 +1,28 @@
 {
 	"name": "n8n-nodes-acme",
 	"version": "0.1.0",
-	"description": "",
+	"description": "n8n community nodes for ACME certificate automation with multi-provider DNS management",
 	"license": "MIT",
-	"homepage": "",
+	"homepage": "https://github.com/kboykov/n8n-nodes-acme#readme",
 	"keywords": [
 		"n8n-community-node-package",
+		"n8n",
 		"acme",
-		"certificate"
+		"certificate",
+		"ssl",
+		"tls",
+		"letsencrypt",
+		"dns",
+		"cloudflare",
+		"dns-01"
 	],
 	"author": {
-		"name": "Colin Shawn",
-		"email": "contact@colinshawn.com"
+		"name": "",
+		"email": ""
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/colinshawn/n8n-nodes-acme.git"
+		"url": "https://github.com/kboykov/n8n-nodes-acme.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",
@@ -29,10 +36,15 @@
 	"files": [
 		"dist"
 	],
+	"publishConfig": {
+		"provenance": true
+	},
 	"n8n": {
 		"n8nNodesApiVersion": 1,
 		"strict": true,
-		"credentials": [],
+		"credentials": [
+			"dist/credentials/CloudflareDnsApi.credentials.js"
+		],
 		"nodes": [
 			"dist/nodes/DNS/DNS.node.js",
 			"dist/nodes/ACME/ACME.node.js",
@@ -42,10 +54,10 @@
 	"devDependencies": {
 		"@n8n/node-cli": "*",
 		"@types/node": "^25.0.8",
-		"eslint": "9.32.0",
-		"prettier": "3.6.2",
-		"release-it": "^19.0.4",
-		"typescript": "5.9.2"
+		"eslint": "9.39.4",
+		"prettier": "3.8.3",
+		"release-it": "20.0.1",
+		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
