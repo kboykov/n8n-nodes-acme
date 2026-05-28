@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-acme",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "n8n community nodes for ACME certificate automation with multi-provider DNS management",
 	"license": "MIT",
 	"homepage": "https://github.com/kboykov/n8n-nodes-acme#readme",
