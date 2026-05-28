@@ -1,5 +1,4 @@
-import type { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
-import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
+import type { IExecuteFunctions, INodeExecutionData, INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 import { CommonAction } from './Common.action';
 
 export class CreateDnsTxtRecord extends CommonAction {

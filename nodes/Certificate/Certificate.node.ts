@@ -5,7 +5,6 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-// eslint-disable-next-line @n8n/community-nodes/no-restricted-imports
 import { ParseCertificate } from './ParseCertificate.action';
 import { GeneratePrivateKey } from './GeneratePrivateKey.action';
 import { GenerateCSR } from './GenerateCSR.action';
@@ -18,6 +17,7 @@ export class Certificate implements INodeType {
 		icon: { light: 'file:certificate.svg', dark: 'file:certificate.dark.svg' },
 		group: ['input'],
 		version: 1,
+		subtitle: '={{ $parameter["operation"] }}',
 		description: 'Provide common operations related to certificates',
 		documentationUrl: 'https://github.com/kboykov/n8n-nodes-acme',
 		defaults: {
@@ -32,13 +32,14 @@ export class Certificate implements INodeType {
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
+				// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-options
+				default: 'parseCertificate',
 				options: [
 					ParseCertificate.Options,
 					GeneratePrivateKey.Options,
 					GenerateCSR.Options,
 					ParseCSR.Options,
 				],
-				default: ParseCertificate.Operation,
 			},
 			...ParseCertificate.Properties,
 			...GeneratePrivateKey.Properties,

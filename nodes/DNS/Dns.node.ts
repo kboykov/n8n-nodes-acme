@@ -43,13 +43,14 @@ export class DNS implements INodeType {
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
+				// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-options
+				default: 'queryDnsTxt',
 				options: [
 					QueryDnsTxt.Options,
 					WaitForDnsTxt.Options,
 					CreateDnsTxtRecord.Options,
 					DeleteDnsTxtRecord.Options,
 				],
-				default: QueryDnsTxt.Operation,
 			},
 			{
 				displayName: 'DNS Provider',

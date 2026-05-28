@@ -14,23 +14,16 @@ export abstract class CommonAction extends BaseAction {
 		return this.getNodeParameter<string>('hostName');
 	}
 
-	/**
-	 * Returns the DNS provider configured on the node.
-	 * HTTP calls are routed through n8n's helpers.httpRequest so they benefit
-	 * from n8n's proxy/certificate configuration and follow the community-node
-	 * no-external-http convention.
-	 */
 	protected async getDnsProvider(): Promise<IDnsProvider> {
 		const providerName = this.getNodeParameter<string>('dnsProvider');
-		const self = this;
 
 		switch (providerName) {
 			case 'cloudflare': {
 				const creds = await this.context.getCredentials('cloudflareDnsApi');
 				return new CloudflareDnsProvider(
 					creds.apiToken as string,
-					async (method, url, headers, body) =>
-						self.context.helpers.httpRequest({
+					(method, url, headers, body) =>
+						this.context.helpers.httpRequest({
 							method: method as IHttpRequestMethods,
 							url,
 							headers,

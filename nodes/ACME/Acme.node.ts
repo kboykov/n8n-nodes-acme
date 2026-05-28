@@ -40,6 +40,8 @@ export class ACME implements INodeType {
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
+				// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-options
+				default: 'createAccount',
 				options: [
 					CreateAccount.Options,
 					CreateOrder.Options,
@@ -49,14 +51,13 @@ export class ACME implements INodeType {
 					FinalizeOrder.Options,
 					DownloadCertificate.Options,
 				],
-				default: CreateAccount.Operation,
 			},
 			{
 				displayName: 'Directory Url',
 				name: 'directoryUrl',
 				type: 'options',
 				required: true,
-				default: directory.letsencrypt.staging,
+				default: 'https://acme-staging-v02.api.letsencrypt.org/directory',
 				options: [
 					{
 						name: "Staging (Let's Encrypt)",
@@ -141,7 +142,7 @@ export class ACME implements INodeType {
 				name: 'challengeType',
 				type: 'options',
 				required: true,
-				default: ChallengeTypes.DNS,
+				default: 'dns-01',
 				options: [
 					{
 						name: 'DNS-01',

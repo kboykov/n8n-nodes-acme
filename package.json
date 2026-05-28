@@ -17,8 +17,8 @@
 		"dns-01"
 	],
 	"author": {
-		"name": "",
-		"email": ""
+		"name": "kboykov",
+		"email": "kboykov@protonmail.com"
 	},
 	"repository": {
 		"type": "git",
@@ -39,6 +39,11 @@
 	"publishConfig": {
 		"provenance": true
 	},
+	"release-it": {
+		"npm": {
+			"publish": false
+		}
+	},
 	"n8n": {
 		"n8nNodesApiVersion": 1,
 		"strict": true,
@@ -46,8 +51,8 @@
 			"dist/credentials/CloudflareDnsApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/DNS/DNS.node.js",
-			"dist/nodes/ACME/ACME.node.js",
+			"dist/nodes/DNS/Dns.node.js",
+			"dist/nodes/ACME/Acme.node.js",
 			"dist/nodes/Certificate/Certificate.node.js"
 		]
 	},
